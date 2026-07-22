@@ -1,0 +1,266 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Transações</h1>
+    <p class="page-subtitle">Registre e acompanhe suas movimentações financeiras</p>
+  </div>
+  <p-button
+    label="Nova Transação"
+    icon="pi pi-plus"
+    (onClick)="abrirDialogNovo()"
+  />
+</div>
+
+<!-- Cards de resumo -->
+<div class="transacoes-summary" *ngIf="transacoes.length > 0">
+  <div class="ledger-card summary-card">
+    <span class="label-xs">Receitas</span>
+    <span class="summary-value text-secondary">{{ getTotalReceitas() | currency: 'BRL' }}</span>
+  </div>
+  <div class="ledger-card summary-card">
+    <span class="label-xs">Despesas</span>
+    <span class="summary-value text-error">{{ getTotalDespesas() | currency: 'BRL' }}</span>
+  </div>
+  <div class="ledger-card summary-card">
+    <span class="label-xs">Saldo</span>
+    <span class="summary-value" [class.text-secondary]="getSaldo() >= 0" [class.text-error]="getSaldo() < 0">
+      {{ getSaldo() | currency: 'BRL' }}
+    </span>
+  </div>
+</div>
+
+<!-- Tabela -->
+<p-table
+  [value]="transacoes"
+  [loading]="carregando"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 25, 50]"
+  [globalFilterFields]="['dsTransacao', 'tpTransacao', 'nmConta', 'nmCategoria']"
+  styleClass="p-datatable-gridlines p-datatable-sm"
+  responsiveLayout="scroll"
+  sortField="dtTransacao"
+  [sortOrder]="-1"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="dtTransacao">
+        Data <p-sortIcon field="dtTransacao" />
+      </th>
+      <th pSortableColumn="tpTransacao">
+        Tipo <p-sortIcon field="tpTransacao" />
+      </th>
+      <th>Descrição</th>
+      <th>Conta</th>
+      <th>Categoria</th>
+      <th pSortableColumn="vlTransacao">
+        Valor <p-sortIcon field="vlTransacao" />
+      </th>
+      <th style="width: 8rem">Ações</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-transacao>
+    <tr>
+      <td>{{ transacao.dtTransacao | date: 'dd/MM/yyyy' }}</td>
+      <td>
+        <p-tag
+          [value]="getTipoLabel(transacao.tpTransacao)"
+          [severity]="getTipoSeverity(transacao.tpTransacao)"
+        />
+      </td>
+      <td class="font-medium">{{ transacao.dsTransacao || '—' }}</td>
+      <td>
+        <span>{{ transacao.nmConta || '—' }}</span>
+        <span *ngIf="transacao.tpTransacao === 'Transferencia' && transacao.nmContaDestino">
+          <i class="pi pi-arrow-right" style="font-size: 0.7rem; margin: 0 0.35rem; color: var(--color-outline);"></i>
+          {{ transacao.nmContaDestino }}
+        </span>
+      </td>
+      <td>{{ transacao.nmCategoria || '—' }}</td>
+      <td>
+        <span class="valor-transacao"
+          [class.valor-receita]="transacao.tpTransacao === 'Receita'"
+          [class.valor-despesa]="transacao.tpTransacao === 'Despesa'"
+          [class.valor-transferencia]="transacao.tpTransacao === 'Transferencia'"
+        >
+          <span *ngIf="transacao.tpTransacao === 'Receita'">+</span>
+          <span *ngIf="transacao.tpTransacao === 'Despesa'">−</span>
+          {{ transacao.vlTransacao | currency: 'BRL' }}
+        </span>
+      </td>
+      <td>
+        <div style="display: flex; gap: 0.25rem;">
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [text]="true"
+            severity="info"
+            pTooltip="Editar"
+            (onClick)="abrirDialogEdicao(transacao)"
+          />
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
+            pTooltip="Excluir"
+            (onClick)="confirmarDelecao(transacao)"
+          />
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="7" class="text-center" style="padding: 2rem; color: var(--color-outline);">
+        <i class="pi pi-wallet" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+        Nenhuma transação encontrada. Registre sua primeira movimentação!
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Dialog: Criar / Editar -->
+<p-dialog
+  [header]="modoEdicao ? 'Editar Transação' : 'Nova Transação'"
+  [(visible)]="dialogVisivel"
+  [modal]="true"
+  [style]="{ width: '34rem' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="fecharDialog()"
+>
+  <form [formGroup]="form" class="form-grid">
+
+    <!-- Tipo -->
+    <div class="form-field">
+      <label>Tipo <span class="required">*</span></label>
+      <p-select
+        formControlName="tpTransacao"
+        [options]="tiposTransacao"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione o tipo"
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('tpTransacao') }"
+      />
+      <small *ngIf="campoInvalido('tpTransacao')" class="field-error">
+        Tipo é obrigatório.
+      </small>
+    </div>
+
+    <!-- Conta Origem -->
+    <div class="form-field">
+      <label>{{ isTransferencia ? 'Conta Origem' : 'Conta' }} <span class="required">*</span></label>
+      <p-select
+        formControlName="cdConta"
+        [options]="contas"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione a conta"
+        [filter]="true"
+        filterPlaceholder="Buscar conta..."
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('cdConta') }"
+      />
+      <small *ngIf="campoInvalido('cdConta')" class="field-error">
+        Conta é obrigatória.
+      </small>
+    </div>
+
+    <!-- Conta Destino (só para Transferência) -->
+    <div class="form-field" *ngIf="isTransferencia">
+      <label>Conta Destino <span class="required">*</span></label>
+      <p-select
+        formControlName="cdContaDestino"
+        [options]="contas"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione a conta destino"
+        [filter]="true"
+        filterPlaceholder="Buscar conta..."
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('cdContaDestino') }"
+      />
+      <small *ngIf="campoInvalido('cdContaDestino')" class="field-error">
+        Conta destino é obrigatória para transferências.
+      </small>
+    </div>
+
+    <!-- Categoria (só para Receita/Despesa) -->
+    <div class="form-field" *ngIf="!isTransferencia">
+      <label>Categoria <span class="required">*</span></label>
+      <p-select
+        formControlName="cdCategoria"
+        [options]="categorias"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione a categoria"
+        [filter]="true"
+        filterPlaceholder="Buscar categoria..."
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('cdCategoria') }"
+      />
+      <small *ngIf="campoInvalido('cdCategoria')" class="field-error">
+        Categoria é obrigatória.
+      </small>
+    </div>
+
+    <!-- Valor + Data -->
+    <div class="form-row">
+      <div class="form-field">
+        <label>Valor <span class="required">*</span></label>
+        <p-inputNumber
+          formControlName="vlTransacao"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          placeholder="R$ 0,00"
+          [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('vlTransacao') }"
+        />
+        <small *ngIf="campoInvalido('vlTransacao')" class="field-error">
+          Valor é obrigatório.
+        </small>
+      </div>
+      <div class="form-field">
+        <label>Data <span class="required">*</span></label>
+        <p-datepicker
+          formControlName="dtTransacao"
+          dateFormat="dd/mm/yy"
+          placeholder="Selecione a data"
+          [showIcon]="true"
+          [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('dtTransacao') }"
+        />
+        <small *ngIf="campoInvalido('dtTransacao')" class="field-error">
+          Data é obrigatória.
+        </small>
+      </div>
+    </div>
+
+    <!-- Descrição -->
+    <div class="form-field">
+      <label>Descrição</label>
+      <textarea
+        pTextarea
+        formControlName="dsTransacao"
+        placeholder="Descreva a transação (opcional)"
+        rows="2"
+        autoResize="true"
+      ></textarea>
+    </div>
+
+  </form>
+
+  <!-- Rodapé do dialog -->
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      [text]="true"
+      severity="secondary"
+      (onClick)="fecharDialog()"
+    />
+    <p-button
+      [label]="modoEdicao ? 'Salvar alterações' : 'Registrar transação'"
+      icon="pi pi-check"
+      (onClick)="salvar()"
+    />
+  </ng-template>
+</p-dialog>

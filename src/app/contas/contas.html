@@ -1,0 +1,20 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Contas</h1>
+    <p class="page-subtitle">Gerencie suas contas financeiras</p>
+  </div>
+  <p-button label="Nova Conta" icon="pi pi-plus" (onClick)="criarNovaConta()"></p-button>
+</div>
+
+<app-contas-table (atualizarConta)="editarConta($event)"></app-contas-table>
+
+<p-dialog
+  [header]="label"
+  [(visible)]="modalAberto"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+  [focusOnShow]="false"
+  [draggable]="false"
+  (onHide)="fecharModal()">
+  <app-contas-form *ngIf="modalAberto" [conta]="contaSelecionada" (salvou)="onSalvou()"></app-contas-form>
+</p-dialog>

@@ -1,0 +1,87 @@
+/* Summary Cards */
+.transacoes-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-value {
+  font-family: var(--font-headline);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-on-surface);
+  line-height: 1;
+}
+
+/* Valor na tabela */
+.valor-transacao {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.valor-receita {
+  color: var(--color-secondary);
+}
+
+.valor-despesa {
+  color: var(--color-error);
+}
+
+.valor-transferencia {
+  color: var(--color-primary);
+}
+
+/* Form Layout */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: 0.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-field label {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.form-field .required {
+  color: var(--color-error);
+}
+
+.field-error {
+  color: var(--color-error);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .transacoes-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

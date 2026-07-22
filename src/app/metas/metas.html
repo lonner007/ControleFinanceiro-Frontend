@@ -1,0 +1,220 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Metas Financeiras</h1>
+    <p class="page-subtitle">Acompanhe suas metas e objetivos financeiros</p>
+  </div>
+  <p-button
+    label="Nova Meta"
+    icon="pi pi-plus"
+    (onClick)="abrirDialogNovo()"
+  />
+</div>
+
+<!-- Cards de resumo -->
+<div class="metas-summary" *ngIf="metas.length > 0">
+  <div class="ledger-card summary-card">
+    <span class="label-xs">Total de Metas</span>
+    <span class="summary-value">{{ metas.length }}</span>
+  </div>
+  <div class="ledger-card summary-card">
+    <span class="label-xs">Concluídas</span>
+    <span class="summary-value text-secondary">{{ getMetasConcluidas() }}</span>
+  </div>
+  <div class="ledger-card summary-card">
+    <span class="label-xs">Em Andamento</span>
+    <span class="summary-value text-primary">{{ metas.length - getMetasConcluidas() }}</span>
+  </div>
+</div>
+
+<!-- Tabela -->
+<p-table
+  [value]="metas"
+  [loading]="carregando"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 25]"
+  styleClass="p-datatable-gridlines p-datatable-sm"
+  responsiveLayout="scroll"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="nmMeta">
+        Meta <p-sortIcon field="nmMeta" />
+      </th>
+      <th>Progresso</th>
+      <th pSortableColumn="vlAlvo">
+        Valor Alvo <p-sortIcon field="vlAlvo" />
+      </th>
+      <th>Valor Atual</th>
+      <th>Restante</th>
+      <th pSortableColumn="dtPrazo">
+        Prazo <p-sortIcon field="dtPrazo" />
+      </th>
+      <th>Status</th>
+      <th style="width: 8rem">Ações</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-meta>
+    <tr>
+      <td>
+        <div class="font-medium">{{ meta.nmMeta }}</div>
+        <small class="text-outline" *ngIf="meta.dsMeta">{{ meta.dsMeta }}</small>
+      </td>
+      <td style="min-width: 10rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <p-progressBar
+            [value]="getPercentual(meta)"
+            [showValue]="false"
+            style="flex: 1; height: 0.5rem;"
+          />
+          <span style="font-size: 0.8rem; font-weight: 600; min-width: 2.5rem; text-align: right;">
+            {{ getPercentual(meta) }}%
+          </span>
+        </div>
+      </td>
+      <td class="font-medium">{{ meta.vlAlvo | currency: 'BRL' }}</td>
+      <td>{{ meta.vlAtual | currency: 'BRL' }}</td>
+      <td>{{ getValorRestante(meta) | currency: 'BRL' }}</td>
+      <td>
+        <div>{{ meta.dtPrazo | date: 'dd/MM/yyyy' }}</div>
+        <small class="text-outline">{{ getDiasRestantes(meta) }} dias restantes</small>
+      </td>
+      <td>
+        <p-tag
+          [value]="getStatusLabel(meta)"
+          [severity]="getStatusSeverity(meta)"
+        />
+      </td>
+      <td>
+        <div style="display: flex; gap: 0.25rem;">
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [text]="true"
+            severity="info"
+            pTooltip="Editar"
+            (onClick)="abrirDialogEdicao(meta)"
+          />
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
+            pTooltip="Excluir"
+            (onClick)="confirmarDelecao(meta)"
+          />
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="8" class="text-center" style="padding: 2rem; color: var(--color-outline);">
+        <i class="pi pi-flag" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+        Nenhuma meta encontrada. Crie sua primeira meta!
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Dialog: Criar / Editar -->
+<p-dialog
+  [header]="modoEdicao ? 'Editar Meta' : 'Nova Meta'"
+  [(visible)]="dialogVisivel"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="fecharDialog()"
+>
+  <form [formGroup]="form" class="form-grid">
+
+    <!-- Nome -->
+    <div class="form-field">
+      <label>Nome da Meta <span class="required">*</span></label>
+      <input
+        pInputText
+        formControlName="nmMeta"
+        placeholder="Ex: Reserva de emergência"
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('nmMeta') }"
+      />
+      <small *ngIf="campoInvalido('nmMeta')" class="field-error">
+        Nome é obrigatório (mínimo 2 caracteres).
+      </small>
+    </div>
+
+    <!-- Descrição -->
+    <div class="form-field">
+      <label>Descrição</label>
+      <textarea
+        pTextarea
+        formControlName="dsMeta"
+        placeholder="Descreva o objetivo desta meta (opcional)"
+        rows="2"
+        autoResize="true"
+      ></textarea>
+    </div>
+
+    <!-- Valor Alvo + Valor Atual -->
+    <div class="form-row">
+      <div class="form-field">
+        <label>Valor Alvo <span class="required">*</span></label>
+        <p-inputNumber
+          formControlName="vlAlvo"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          placeholder="R$ 0,00"
+          [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('vlAlvo') }"
+        />
+        <small *ngIf="campoInvalido('vlAlvo')" class="field-error">
+          Valor alvo é obrigatório.
+        </small>
+      </div>
+      <div class="form-field">
+        <label>Valor Atual</label>
+        <p-inputNumber
+          formControlName="vlAtual"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          placeholder="R$ 0,00"
+        />
+      </div>
+    </div>
+
+    <!-- Prazo -->
+    <div class="form-field">
+      <label>Prazo <span class="required">*</span></label>
+      <p-datepicker
+        formControlName="dtPrazo"
+        dateFormat="dd/mm/yy"
+        placeholder="Selecione a data"
+        [showIcon]="true"
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('dtPrazo') }"
+      />
+      <small *ngIf="campoInvalido('dtPrazo')" class="field-error">
+        Prazo é obrigatório.
+      </small>
+    </div>
+
+  </form>
+
+  <!-- Rodapé do dialog -->
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      [text]="true"
+      severity="secondary"
+      (onClick)="fecharDialog()"
+    />
+    <p-button
+      [label]="modoEdicao ? 'Salvar alterações' : 'Criar meta'"
+      icon="pi pi-check"
+      (onClick)="salvar()"
+    />
+  </ng-template>
+</p-dialog>

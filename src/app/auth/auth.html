@@ -1,0 +1,57 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-logo-auth">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+      </div>
+      <div>
+        <div class="auth-brand-name">The Ledger</div>
+        <div class="auth-brand-sub">Controle Financeiro</div>
+      </div>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab" [class.active]="aba==='login'" (click)="aba='login'">Entrar</button>
+      <button class="auth-tab" [class.active]="aba==='registro'" (click)="aba='registro'">Criar conta</button>
+    </div>
+
+    <form *ngIf="aba==='login'" [formGroup]="formLogin" class="auth-form" (ngSubmit)="login()">
+      <div class="auth-field">
+        <label>E-mail</label>
+        <input pInputText formControlName="dsEmail" type="email" placeholder="seu@email.com" autocomplete="email" class="w-full"/>
+        <small *ngIf="inv(formLogin,'dsEmail')" class="auth-error">E-mail inválido.</small>
+      </div>
+      <div class="auth-field">
+        <label>Senha</label>
+        <p-password formControlName="dsSenha" [feedback]="false" [toggleMask]="true" placeholder="••••••" styleClass="w-full" inputStyleClass="w-full" autocomplete="current-password"/>
+        <small *ngIf="inv(formLogin,'dsSenha')" class="auth-error">Mínimo 6 caracteres.</small>
+      </div>
+      <p-button type="submit" label="Entrar" icon="pi pi-sign-in" styleClass="w-full" [loading]="carregando"/>
+    </form>
+
+    <form *ngIf="aba==='registro'" [formGroup]="formRegistro" class="auth-form" (ngSubmit)="registrar()">
+      <div class="auth-field">
+        <label>Nome</label>
+        <input pInputText formControlName="nmUsuario" placeholder="Seu nome" autocomplete="name" class="w-full"/>
+        <small *ngIf="inv(formRegistro,'nmUsuario')" class="auth-error">Nome obrigatório (mín. 2 caracteres).</small>
+      </div>
+      <div class="auth-field">
+        <label>E-mail</label>
+        <input pInputText formControlName="dsEmail" type="email" placeholder="seu@email.com" autocomplete="email" class="w-full"/>
+        <small *ngIf="inv(formRegistro,'dsEmail')" class="auth-error">E-mail inválido.</small>
+      </div>
+      <div class="auth-field">
+        <label>Senha</label>
+        <p-password formControlName="dsSenha" [toggleMask]="true" placeholder="••••••" styleClass="w-full" inputStyleClass="w-full"
+          promptLabel="Digite uma senha" weakLabel="Fraca" mediumLabel="Média" strongLabel="Forte" autocomplete="new-password"/>
+        <small *ngIf="inv(formRegistro,'dsSenha')" class="auth-error">Mínimo 6 caracteres.</small>
+      </div>
+      <div class="auth-field">
+        <label>Confirmar Senha</label>
+        <p-password formControlName="dsConfirmar" [feedback]="false" [toggleMask]="true" placeholder="••••••" styleClass="w-full" inputStyleClass="w-full" autocomplete="new-password"/>
+        <small *ngIf="formRegistro.errors?.['senhasDiferentes'] && formRegistro.get('dsConfirmar')?.touched" class="auth-error">As senhas não coincidem.</small>
+      </div>
+      <p-button type="submit" label="Criar conta" icon="pi pi-user-plus" styleClass="w-full" [loading]="carregando"/>
+    </form>
+  </div>
+</div>

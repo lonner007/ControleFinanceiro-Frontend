@@ -1,0 +1,193 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Categorias</h1>
+    <p class="page-subtitle">Gerencie as categorias de receitas e despesas</p>
+  </div>
+  <p-button
+    label="Nova Categoria"
+    icon="pi pi-plus"
+    (onClick)="abrirDialogNovo()"
+  />
+</div>
+
+  <!-- Tabela -->
+  <p-table
+    [value]="categorias"
+    [loading]="carregando"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25]"
+    [globalFilterFields]="['nmCategoria', 'tpCategoria']"
+    styleClass="p-datatable-gridlines p-datatable-sm"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nmCategoria">
+          Nome <p-sortIcon field="nmCategoria" />
+        </th>
+        <th>Descrição</th>
+        <th pSortableColumn="tpCategoria">
+          Tipo <p-sortIcon field="tpCategoria" />
+        </th>
+        <th>Cor</th>
+        <th>Ícone</th>
+        <th>Status</th>
+        <th style="width: 8rem">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-categoria>
+      <tr>
+        <td class="font-medium">{{ categoria.nmCategoria }}</td>
+        <td class="text-500">{{ categoria.dsCategoria || '—' }}</td>
+        <td>
+          <p-tag
+            [value]="categoria.tpCategoria"
+            [severity]="getSeverity(categoria.tpCategoria)"
+          />
+        </td>
+        <td>
+          <div
+            class="border-circle"
+            style="width: 1.5rem; height: 1.5rem;"
+            [style.background]="categoria.cor || '#6366f1'"
+            pTooltip="{{ categoria.cor }}"
+          ></div>
+        </td>
+        <td>
+          <i *ngIf="categoria.icone" [class]="'pi ' + categoria.icone"></i>
+          <span *ngIf="!categoria.icone" class="text-400">—</span>
+        </td>
+        <td>
+          <p-tag
+            [value]="categoria.ativo ? 'Ativo' : 'Inativo'"
+            [severity]="categoria.ativo ? 'success' : 'secondary'"
+          />
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              pTooltip="Editar"
+              (onClick)="abrirDialogEdicao(categoria)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              pTooltip="Excluir"
+              (onClick)="confirmarDelecao(categoria)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center text-500 py-5">
+          <i class="pi pi-inbox text-4xl mb-2 block"></i>
+          Nenhuma categoria encontrada.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+<!-- Dialog: Criar / Editar -->
+<p-dialog
+  [header]="modoEdicao ? 'Editar Categoria' : 'Nova Categoria'"
+  [(visible)]="dialogVisivel"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="fecharDialog()"
+>
+  <form [formGroup]="form" class="flex flex-column gap-4 pt-2">
+
+    <!-- Nome -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-900">Nome <span class="text-red-500">*</span></label>
+      <input
+        pInputText
+        formControlName="nmCategoria"
+        placeholder="Ex: Alimentação"
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('nmCategoria') }"
+      />
+      <small *ngIf="campoInvalido('nmCategoria')" class="text-red-500">
+        Nome é obrigatório (mínimo 2 caracteres).
+      </small>
+    </div>
+
+    <!-- Descrição -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-900">Descrição</label>
+      <textarea
+        pInputTextarea
+        formControlName="dsCategoria"
+        placeholder="Descreva a categoria (opcional)"
+        rows="2"
+        autoResize="true"
+      ></textarea>
+    </div>
+
+    <!-- Tipo -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-900">Tipo <span class="text-red-500">*</span></label>
+      <p-select
+        formControlName="tpCategoria"
+        [options]="tiposCategoria"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione o tipo"
+        [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('tpCategoria') }"
+      />
+      <small *ngIf="campoInvalido('tpCategoria')" class="text-red-500">
+        Tipo é obrigatório.
+      </small>
+    </div>
+
+    <!-- Ícone + Cor (linha) -->
+    <div class="flex gap-3">
+      <div class="flex flex-column gap-1 flex-1">
+        <label class="font-medium text-900">Ícone PrimeNG</label>
+        <input
+          pInputText
+          formControlName="icone"
+          placeholder="Ex: pi-tag"
+        />
+        <small class="text-400">Use classes <code>pi-*</code> do PrimeIcons</small>
+      </div>
+      <div class="flex flex-column gap-1">
+        <label class="font-medium text-900">Cor</label>
+        <input
+          type="color"
+          formControlName="cor"
+          style="width: 3rem; height: 2.5rem; border: none; cursor: pointer; border-radius: 6px;"
+        />
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Rodapé do dialog -->
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      [text]="true"
+      severity="secondary"
+      (onClick)="fecharDialog()"
+    />
+    <p-button
+      [label]="modoEdicao ? 'Salvar alterações' : 'Criar categoria'"
+      icon="pi pi-check"
+      (onClick)="salvar()"
+    />
+  </ng-template>
+</p-dialog>

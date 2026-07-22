@@ -1,0 +1,146 @@
+<div class="card conta-form-container">
+  <form [formGroup]="form" class="p-fluid">
+    <!-- Nome da Conta -->
+    <div
+      class="field"
+      [ngClass]="{
+        'field-focused': focusedField === 'nmConta',
+        'field-invalid': isFieldInvalid('nmConta'),
+      }">
+      <label>
+        Nome da Conta
+        <span class="required-indicator">*</span>
+      </label>
+
+      <span class="p-input-icon-right">
+        <i *ngIf="isFieldInvalid('nmConta')" class="pi pi-exclamation-circle error-icon"></i>
+
+        <input
+          pInputText
+          formControlName="nmConta"
+          placeholder="Ex: Minha Conta Corrente"
+          (focus)="setFocusedField('nmConta')"
+          (blur)="setFocusedField(null)"
+          [ngClass]="{ 'input-error': isFieldInvalid('nmConta') }"/>
+      </span>
+
+      <!-- erro -->
+      <div *ngIf="isFieldInvalid('nmConta')" class="error-messages">
+        <small class="p-error">
+          <i class="pi pi-times-circle"></i>
+          {{ getFieldError('nmConta') }}
+        </small>
+      </div>
+
+      <!-- helper -->
+      <small class="helper-text" *ngIf="!isFieldInvalid('nmConta')">
+        {{ form.get('nmConta')?.value?.length || 0 }}/100 caracteres
+      </small>
+    </div>
+
+    <!-- Tipo de Conta -->
+    <div
+      class="field"
+      [ngClass]="{
+        'field-focused': focusedField === 'cdTipoConta',
+        'field-invalid': isFieldInvalid('cdTipoConta'),
+      }"
+    >
+      <label>
+        Tipo de Conta
+        <span class="required-indicator">*</span>
+      </label>
+      <p-select
+        [options]="tiposConta"
+        formControlName="cdTipoConta"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione um tipo"
+        [showClear]="true"
+        (onFocus)="setFocusedField('cdTipoConta')"
+        (onBlur)="setFocusedField(null)"
+      >
+      </p-select>
+
+      <div *ngIf="isFieldInvalid('cdTipoConta')" class="error-messages">
+        <small class="p-error">
+          <i class="pi pi-times-circle"></i>
+          {{ getFieldError('cdTipoConta') }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Saldo Inicial -->
+    <div
+      class="field"
+      [ngClass]="{
+        'field-focused': focusedField === 'vlSaldoInicial',
+        'field-invalid': isFieldInvalid('vlSaldoInicial'),
+      }"
+    >
+      <label>
+        Saldo Inicial
+        <span class="required-indicator">*</span>
+      </label>
+      <p-inputNumber
+        formControlName="vlSaldoInicial"
+        mode="currency"
+        currency="BRL"
+        locale="pt-BR"
+        placeholder="R$ 0,00"
+        [useGrouping]="true"
+        [ngClass]="{ 'input-error': isFieldInvalid('vlSaldoInicial') }"
+        (onFocus)="setFocusedField('vlSaldoInicial')"
+        (onBlur)="setFocusedField(null)"
+      >
+      </p-inputNumber>
+
+      <div *ngIf="isFieldInvalid('vlSaldoInicial')" class="error-messages">
+        <small class="p-error">
+          <i class="pi pi-times-circle"></i>
+          {{ getFieldError('vlSaldoInicial') }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="button-group">
+      <button
+        pButton
+        type="button"
+        [label]="isEditMode ? 'Atualizar' : 'Salvar'"
+        icon="pi pi-check"
+        (click)="salvarOuAtualizar()"
+        [disabled]="form.invalid || isSubmitting"
+        [loading]="isSubmitting"
+        class="p-button-success"
+      ></button>
+
+      <button
+        *ngIf="isEditMode"
+        pButton
+        type="button"
+        label="Deletar"
+        icon="pi pi-trash"
+        (click)="confirmarDelete()"
+        [disabled]="isSubmitting"
+        class="p-button-danger"
+      ></button>
+    </div>
+
+    <!-- Resumo de Validação -->
+    <div
+      *ngIf="
+        form.invalid &&
+        (form.get('nmConta')?.touched ||
+          form.get('cdTipoConta')?.touched ||
+          form.get('vlSaldoInicial')?.touched)
+      "
+      class="validation-summary">
+      <p>
+        <i class="pi pi-info-circle"></i>
+        Por favor, corrija os erros acima antes de continuar.
+      </p>
+    </div>
+  </form>
+</div>

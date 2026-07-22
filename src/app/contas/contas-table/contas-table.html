@@ -1,0 +1,40 @@
+<p-table [columns]="colunas" [value]="contas" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 25]" styleClass="p-datatable-gridlines p-datatable-sm" responsiveLayout="scroll">
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th>Nome</th>
+      <th>Tipo</th>
+      <th>Saldo</th>
+      <th style="width: 8rem">Ações</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      <td class="font-medium">{{ row.nmConta }}</td>
+      <td>{{ getTipoLabel(row.cdTipoConta) }}</td>
+      <td>
+        <span [style.color]="row.vlSaldoAtual >= 0 ? 'var(--p-green-500)' : 'var(--p-red-500)'">
+          {{ formatarSaldo(row.vlSaldoAtual) }}
+        </span>
+      </td>
+      <td>
+        <p-button icon="pi pi-pencil"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="info"
+                  pTooltip="Editar"
+                  (onClick)="atualizaConta(row)">
+        </p-button>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td [attr.colspan]="4" class="text-center" style="padding: 2rem; color: var(--color-outline);">
+        <i class="pi pi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+        Nenhuma conta encontrada.
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
