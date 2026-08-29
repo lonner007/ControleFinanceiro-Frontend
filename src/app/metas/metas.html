@@ -193,6 +193,8 @@
         dateFormat="dd/mm/yy"
         placeholder="Selecione a data"
         [showIcon]="true"
+        appendTo="body"
+        styleClass="w-full"
         [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('dtPrazo') }"
       />
       <small *ngIf="campoInvalido('dtPrazo')" class="field-error">

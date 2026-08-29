@@ -293,6 +293,22 @@
   }
 }
 
+@media (max-width: 768px) {
+  .conta-form-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+}
+
 /* Foco Visível para Navegação por Teclado */
 .p-inputtext:focus-visible,
 .button-group button:focus-visible {

@@ -1,0 +1,13 @@
+.mes-nav { display:flex;align-items:center;gap:.5rem;margin-bottom:1.5rem; }
+.mes-label { font-weight:600;min-width:11rem;text-align:center; }
+.orc-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem; }
+.orc-card { padding:1.25rem; }
+.empty-state { text-align:center;padding:4rem;color:var(--color-outline); }
+.empty-state i { font-size:2.5rem;display:block;margin-bottom:.75rem; }
+.field-error {
+  color: var(--color-error);
+  font-weight: 500;
+}
+.ajustaEspacamento {
+  padding: 2%;
+}

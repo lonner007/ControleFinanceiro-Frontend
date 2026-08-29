@@ -12,6 +12,6 @@ export const authGuard: CanActivateFn = () => {
 export const publicGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   if (!auth.isLogado()) return true;
-  inject(Router).navigate(['/contas']);
+  inject(Router).navigate(['/dashboard']);
   return false;
 };

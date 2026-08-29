@@ -67,3 +67,19 @@
     grid-template-columns: 1fr;
   }
 }
+:host ::ng-deep .p-datepicker {
+  width: 100%;
+}
+
+:host ::ng-deep .p-datepicker input,
+:host ::ng-deep .p-datepicker .p-inputtext {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .form-row,
+  .metas-form-row {
+    grid-template-columns: 1fr;
+  }
+}

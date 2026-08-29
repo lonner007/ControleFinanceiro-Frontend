@@ -1,0 +1,113 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Visão geral das suas finanças</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:.5rem;">
+    <p-button icon="pi pi-chevron-left" [rounded]="true" [text]="true" (onClick)="navegarMes(-1)"/>
+    <span style="font-weight:600;min-width:11rem;text-align:center;">{{ getMesNome() | titlecase }}</span>
+    <p-button icon="pi pi-chevron-right" [rounded]="true" [text]="true" (onClick)="navegarMes(1)"/>
+  </div>
+</div>
+
+<div *ngIf="carregando" class="loading-state">
+  <i class="pi pi-spin pi-spinner" style="font-size:2rem;"></i>
+  <p>Carregando...</p>
+</div>
+
+<div *ngIf="!carregando && resumo">
+  <div class="summary-cards">
+    <div class="ledger-card summary-card">
+      <div class="card-icon" style="background:rgba(34,197,94,.12);color:#16a34a;"><i class="pi pi-arrow-up"></i></div>
+      <div><span class="label-xs">Ganhos</span><div class="summary-value" style="color:#16a34a;">{{ resumo.totalReceitas | currency:'BRL' }}</div></div>
+    </div>
+    <div class="ledger-card summary-card">
+      <div class="card-icon" style="background:rgba(239,68,68,.12);color:#dc2626;"><i class="pi pi-arrow-down"></i></div>
+      <div><span class="label-xs">Despesas</span><div class="summary-value" style="color:#dc2626;">{{ resumo.totalDespesas | currency:'BRL' }}</div></div>
+    </div>
+    <div class="ledger-card summary-card">
+      <div class="card-icon" style="background:rgba(99,102,241,.12);color:#4f46e5;"><i class="pi pi-wallet"></i></div>
+      <div>
+        <span class="label-xs">Saldo do Mês</span>
+        <div class="summary-value" [style.color]="resumo.saldo >= 0 ? '#16a34a' : '#dc2626'">{{ resumo.saldo | currency:'BRL' }}</div>
+      </div>
+    </div>
+    <div class="ledger-card summary-card">
+      <div class="card-icon" style="background:rgba(168,85,247,.12);color:#7c3aed;"><i class="pi pi-building-columns"></i></div>
+      <div>
+        <span class="label-xs">Saldo Total</span>
+        <div class="summary-value" [style.color]="resumo.saldoTotal >= 0 ? '#16a34a' : '#dc2626'">{{ resumo.saldoTotal | currency:'BRL' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-row dashboard-row-charts">
+    <div class="ledger-card chart-card">
+      <div class="section-title-wrap">
+        <h3 class="section-title">Ganhos x Despesas</h3>
+        <span class="section-chip">comparativo</span>
+      </div>
+      <div class="chart-box">
+        <p-chart type="bar" [data]="graficoGanhosDespesas" [options]="graficoGanhosDespesasOptions"></p-chart>
+      </div>
+    </div>
+
+    <div class="ledger-card chart-card">
+      <div class="section-title-wrap">
+        <h3 class="section-title">Status das metas</h3>
+        <span class="section-chip">andamento</span>
+      </div>
+      <div class="chart-box">
+        <p-chart type="doughnut" [data]="graficoStatusMetas" [options]="graficoStatusMetasOptions"></p-chart>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-row dashboard-row-main">
+    <div class="ledger-card section-card">
+      <div class="section-title-wrap">
+        <h3 class="section-title">Top Categorias (Despesas)</h3>
+        <span class="section-chip">gasto</span>
+      </div>
+      <div *ngIf="!resumo.topCategorias?.length" class="empty-mini">Nenhuma despesa este mês.</div>
+      <div *ngFor="let c of resumo.topCategorias" class="categoria-item">
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <div class="cat-dot" [style.background]="c.cor ?? '#6366f1'"></div>
+          <span>{{ c.nmCategoria }}</span>
+        </div>
+        <span style="font-weight:600;">{{ c.total | currency:'BRL' }}</span>
+      </div>
+    </div>
+
+    <div class="ledger-card section-card">
+      <div class="section-title-wrap">
+        <h3 class="section-title">Metas em andamento</h3>
+        <span class="section-chip">atual</span>
+      </div>
+      <div *ngIf="!metas.length" class="empty-mini">Nenhuma meta encontrada.</div>
+      <div *ngIf="metas.length" class="chart-box chart-box-sm">
+        <p-chart type="line" [data]="graficoMetas" [options]="graficoMetasOptions"></p-chart>
+      </div>
+      <div *ngFor="let meta of metas" class="goal-item">
+        <div class="goal-top">
+          <div>
+            <strong>{{ meta.nmMeta }}</strong>
+            <span>{{ meta.vlAtual | currency:'BRL' }} de {{ meta.vlAlvo | currency:'BRL' }}</span>
+          </div>
+          <p-tag [value]="getPercentual(meta) + '%'" [severity]="getStatusSeverity(meta)"></p-tag>
+        </div>
+        <p-progressBar [value]="getPercentual(meta)" [showValue]="false"></p-progressBar>
+      </div>
+    </div>
+
+    <div class="ledger-card section-card">
+      <div class="section-title-wrap">
+        <h3 class="section-title">Resumo de metas</h3>
+        <span class="section-chip">total</span>
+      </div>
+      <div class="stat-row"><span class="label-xs">Total de metas</span><span class="big-num">{{ resumo.totalMetas }}</span></div>
+      <div class="stat-row"><span class="label-xs">Concluídas</span><span class="big-num" style="color:#16a34a;">{{ resumo.metasConcluidas }}</span></div>
+      <div class="stat-row"><span class="label-xs">Transações</span><span class="big-num">{{ resumo.totalTransacoes }}</span></div>
+    </div>
+  </div>
+</div>

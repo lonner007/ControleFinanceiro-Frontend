@@ -58,6 +58,7 @@ html, body {
   background-color: var(--color-background);
   color: var(--color-on-surface);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -115,6 +116,8 @@ h1, h2, h3, h4, h5, h6,
 .app-content {
   padding: 2rem 3rem;
   max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* ── Sidebar nav items ──────────────────────────────────────── */
@@ -387,6 +390,10 @@ h1, h2, h3, h4, h5, h6,
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
+.p-datatable {
+  width: 100%;
+}
+
 /* Dialog */
 .p-dialog {
   border-radius: var(--radius-xl) !important;
@@ -532,3 +539,118 @@ h1, h2, h3, h4, h5, h6,
 /* ── Corrigir linha vermelha do Chart.js no topo ─────────────── */
 canvas { display: block !important; max-width: 100%; }
 p-chart canvas { position: relative !important; }
+
+@media (max-width: 1200px) {
+  .app-content {
+    padding: 1.5rem 2rem;
+  }
+
+  .page-header .page-title {
+    font-size: 2.4rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    left: auto;
+    top: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(203, 213, 225, 0.5);
+    padding: 1rem;
+  }
+
+  .app-topbar {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    height: 56px;
+    padding: 0 1rem;
+  }
+
+  .app-main {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 0;
+    min-height: auto;
+  }
+
+  .app-content {
+    padding: 1.25rem 1rem 1.5rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .page-header .page-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar-brand {
+    padding-top: 0.5rem;
+  }
+
+  .app-sidebar nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .nav-item {
+    justify-content: flex-start;
+    min-width: 0;
+    padding: 0.7rem 0.85rem;
+  }
+
+  .nav-item span:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-footer {
+    margin-top: 1rem;
+    align-items: flex-start;
+  }
+
+  .sidebar-user {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .user-name,
+  .user-email {
+    max-width: calc(100vw - 6rem);
+  }
+
+  .p-dialog {
+    width: calc(100vw - 1rem) !important;
+    margin: 0.5rem !important;
+  }
+
+  .p-dialog .p-dialog-header,
+  .p-dialog .p-dialog-content,
+  .p-dialog .p-dialog-footer {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .p-dialog .p-dialog-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

@@ -1,0 +1,152 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Simulador</h1>
+    <p class="page-subtitle">Simule investimentos, metas e financiamentos</p>
+  </div>
+</div>
+
+<div class="ledger-card simulator-shell">
+  <p-tabs [(value)]="abaAtiva">
+
+    <p-tabpanel header="Juros Compostos" [value]="0">
+      <div class="sim-layout">
+        <div class="sim-form">
+          <div class="panel-head">
+            <h2>Dados da simulação</h2>
+        </div>
+          <form [formGroup]="formJuros" class="form-grid">
+            <div class="form-field"><label>Valor Inicial (R$)</label><p-inputNumber formControlName="vlInicial" mode="currency" currency="BRL" locale="pt-BR"/></div>
+            <div class="form-field"><label>Aporte Mensal (R$)</label><p-inputNumber formControlName="vlAporte" mode="currency" currency="BRL" locale="pt-BR"/></div>
+            <div class="form-field"><label>Taxa de Juros (%)</label><p-inputNumber formControlName="taxaJuros" [minFractionDigits]="2" suffix="%"/></div>
+            <div class="form-field"><label>Período</label><p-select formControlName="periodo" [options]="periodosOpcoes" optionLabel="label" optionValue="value"/></div>
+            <div class="form-field"><label>Prazo (meses)</label><p-inputNumber formControlName="nrMeses" [min]="1" [max]="600"/></div>
+            <p-button label="Simular" icon="pi pi-calculator" (onClick)="simularJuros()" styleClass="w-full"></p-button>
+          </form>
+        </div>
+
+        <div class="sim-results">
+          <div class="panel-head">
+            <h2>Resultado</h2>
+          </div>
+          <div class="resultado-card" *ngIf="resultadoJuros; else jurosEmpty">
+            <div class="res-item"><span class="label-xs">Saldo Final</span><span class="res-valor" style="color:#16a34a;">{{ fmt(resultadoJuros.saldoFinal) }}</span></div>
+            <div class="res-item"><span class="label-xs">Total Investido</span><span class="res-valor">{{ fmt(resultadoJuros.totalAportado) }}</span></div>
+            <div class="res-item"><span class="label-xs">Juros Ganhos</span><span class="res-valor" style="color:#4f46e5;">{{ fmt(resultadoJuros.jurosAcumulado) }}</span></div>
+            <div class="res-item"><span class="label-xs">Rentabilidade</span><span class="res-valor">{{ fmtPct(resultadoJuros.rentabilidade) }}</span></div>
+          </div>
+          <ng-template #jurosEmpty>
+            <div class="empty-box">Use a simulação para exibir os resultados.</div>
+          </ng-template>
+        </div>
+      </div>
+
+      <section class="ledger-card table-shell">
+        <div class="panel-head">
+          <h2>Tabela de evolução</h2>
+        </div>
+        <p-table [value]="tabelaJuros" [scrollable]="true" scrollHeight="360px" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header"><tr><th>Mês</th><th>Saldo</th><th>Juros do Mês</th><th>Total Invest.</th></tr></ng-template>
+          <ng-template pTemplate="body" let-r>
+            <tr><td>{{ r.mes }}</td><td style="color:#16a34a;font-weight:600;">{{ fmt(r.saldo) }}</td><td>{{ fmt(r.jurosMes) }}</td><td>{{ fmt(r.totalAportado) }}</td></tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-tabpanel>
+
+    <p-tabpanel header="Meta de Economia" [value]="1">
+      <div class="sim-layout">
+        <div class="sim-form">
+          <div class="panel-head">
+            <h2>Dados da meta</h2>
+            <p>Camadas separadas para não deixar os campos grudados.</p>
+          </div>
+          <form [formGroup]="formMeta" class="form-grid">
+            <div class="form-field"><label>Valor da Meta (R$) *</label><p-inputNumber formControlName="vlMeta" mode="currency" currency="BRL" locale="pt-BR"/></div>
+            <div class="form-field"><label>Aporte Mensal (R$) *</label><p-inputNumber formControlName="vlAporte" mode="currency" currency="BRL" locale="pt-BR"/></div>
+            <div class="form-field"><label>Taxa de Juros Mensal (%)</label><p-inputNumber formControlName="taxaJuros" [minFractionDigits]="2" suffix="%"/></div>
+            <p-button label="Calcular" icon="pi pi-flag" (onClick)="simularMeta()" styleClass="w-full"></p-button>
+          </form>
+        </div>
+
+        <div class="sim-results">
+          <div class="panel-head">
+            <h2>Resultado</h2>
+            <p>Prazo e investimento com leitura rápida.</p>
+          </div>
+          <div class="resultado-card" *ngIf="resultadoMeta; else metaEmpty">
+            <div class="res-item"><span class="label-xs">Tempo até atingir</span><span class="res-valor" style="color:#4f46e5;">{{ resultadoMeta.anos > 0 ? resultadoMeta.anos + ' anos e ' : '' }}{{ resultadoMeta.mesesRestantes }} meses</span></div>
+            <div class="res-item"><span class="label-xs">Total de meses</span><span class="res-valor">{{ resultadoMeta.meses }}</span></div>
+            <div class="res-item"><span class="label-xs">Total Investido</span><span class="res-valor">{{ fmt(resultadoMeta.totalAportado) }}</span></div>
+            <div class="res-item"><span class="label-xs">Juros Ganhos</span><span class="res-valor" style="color:#16a34a;">{{ fmt(resultadoMeta.jurosGanhos) }}</span></div>
+          </div>
+          <ng-template #metaEmpty>
+            <div class="empty-box">
+              <i class="pi pi-flag" style="font-size:3rem;color:var(--color-outline);"></i>
+              <p>Informe o valor da meta e o aporte mensal para calcular o prazo.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </p-tabpanel>
+
+    <p-tabpanel header="Financiamento (Price)" [value]="2">
+      <div class="sim-layout">
+        <div class="sim-form">
+          <div class="panel-head">
+            <h2>Dados do financiamento</h2>
+            <p>Os campos ficam separados para facilitar o preenchimento.</p>
+          </div>
+          <form [formGroup]="formFinanc" class="form-grid">
+            <div class="form-field"><label>Valor Financiado (R$) *</label><p-inputNumber formControlName="vlFinanciado" mode="currency" currency="BRL" locale="pt-BR"/></div>
+            <div class="form-field"><label>Taxa Mensal (%) *</label><p-inputNumber formControlName="taxaJuros" [minFractionDigits]="2" suffix="%"/></div>
+            <div class="form-field"><label>Nº de Parcelas *</label><p-inputNumber formControlName="nrParcelas" [min]="1" [max]="600"/></div>
+            <p-button label="Calcular" icon="pi pi-calculator" (onClick)="simularFinanciamento()" styleClass="w-full"></p-button>
+          </form>
+        </div>
+
+        <div class="sim-results">
+          <div class="panel-head">
+            <h2>Resultado</h2>
+            <p>Cards principais com o mesmo peso visual do simulador anterior.</p>
+          </div>
+          <div class="resultado-card" *ngIf="resultadoFinanc; else financEmpty">
+            <div class="res-item"><span class="label-xs">Parcela Mensal</span><span class="res-valor" style="color:#dc2626;">{{ fmt(resultadoFinanc.parcela) }}</span></div>
+            <div class="res-item"><span class="label-xs">Total Pago</span><span class="res-valor">{{ fmt(resultadoFinanc.totalPago) }}</span></div>
+            <div class="res-item"><span class="label-xs">Total de Juros</span><span class="res-valor" style="color:#dc2626;">{{ fmt(resultadoFinanc.totalJuros) }}</span></div>
+            <div class="res-item"><span class="label-xs">Parcelas exibidas</span><span class="res-valor">{{ tabelaFinanc.length }}</span></div>
+          </div>
+          <ng-template #financEmpty>
+            <div class="empty-box">A simulação do financiamento vai preencher este espaço.</div>
+          </ng-template>
+        </div>
+      </div>
+
+      <section class="ledger-card table-shell">
+        <div class="panel-head">
+          <h2>Tabela de amortização</h2>
+          <p>Exibe as primeiras parcelas para análise rápida.</p>
+        </div>
+        <p-table [value]="tabelaFinanc" [scrollable]="true" scrollHeight="360px" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>#</th>
+              <th>Parcela</th>
+              <th>Juros</th>
+              <th>Amortização</th>
+              <th>Saldo devedor</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-r>
+            <tr>
+              <td>{{ r.parcela }}</td>
+              <td>{{ fmt(r.vlParcela) }}</td>
+              <td>{{ fmt(r.juros) }}</td>
+              <td>{{ fmt(r.amortizacao) }}</td>
+              <td>{{ fmt(r.saldo) }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-tabpanel>
+  </p-tabs>
+</div>

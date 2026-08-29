@@ -1,0 +1,55 @@
+<div class="page-header">
+  <div><h1 class="page-title">Orçamento</h1><p class="page-subtitle">Defina limites por categoria</p></div>
+  <p-button label="Novo Orçamento" icon="pi pi-plus" (onClick)="dialogVisivel=true"/>
+</div>
+
+<div class="mes-nav">
+  <p-button icon="pi pi-chevron-left" [rounded]="true" [text]="true" (onClick)="navegarMes(-1)"/>
+  <span class="mes-label">{{ getMesNome() | titlecase }}</span>
+  <p-button icon="pi pi-chevron-right" [rounded]="true" [text]="true" (onClick)="navegarMes(1)"/>
+</div>
+
+<div class="orc-grid" *ngIf="orcamentos.length > 0">
+  <div class="ledger-card orc-card" *ngFor="let orc of orcamentos">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        <div style="width:.7rem;height:.7rem;border-radius:50%;" [style.background]="orc.corCategoria ?? '#6366f1'"></div>
+        <span class="font-medium">{{ orc.nmCategoria }}</span>
+      </div>
+      <div style="display:flex;gap:.25rem;align-items:center;">
+        <p-tag [value]="(orc.percentualUsado ?? 0) + '%'" [severity]="getSeverity(orc.percentualUsado ?? 0)"/>
+        <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="confirmarDelecao(orc)"/>
+      </div>
+    </div>
+    <p-progressBar [value]="orc.percentualUsado ?? 0" [showValue]="false" style="height:.5rem;margin:.5rem 0;"/>
+    <div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--color-outline);">
+      <span>Gasto: <strong style="color:#dc2626;">{{ orc.vlGasto | currency:'BRL' }}</strong></span>
+      <span>Disponível: <strong style="color:#16a34a;">{{ orc.vlDisponivel | currency:'BRL' }}</strong></span>
+      <span>Limite: {{ orc.vlLimite | currency:'BRL' }}</span>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="orcamentos.length === 0" class="empty-state">
+  <i class="pi pi-chart-bar"></i>
+  <p>Nenhum orçamento para este mês.</p>
+</div>
+
+<p-dialog header="Novo Orçamento" [(visible)]="dialogVisivel" [modal]="true" [style]="{width:'28rem'}" [draggable]="false">
+  <form [formGroup]="form" class="form-grid">
+    <div class="form-field ajustaEspacamento">
+      <label>Categoria (Despesa) <span class="required">*</span></label>
+      <p-select formControlName="cdCategoria" [options]="categorias" optionLabel="label" optionValue="value" placeholder="Selecione"/>
+      <small *ngIf="campoInvalido('cdCategoria')" class="field-error">Obrigatório.</small>
+    </div>
+    <div class="form-field ajustaEspacamento">
+      <label>Limite (R$) <span class="required">*</span></label>
+      <p-inputNumber formControlName="vlLimite" mode="currency" currency="BRL" locale="pt-BR" placeholder="R$ 0,00"/>
+      <small *ngIf="campoInvalido('vlLimite')" class="field-error">Obrigatório.</small>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="fecharDialog()"/>
+    <p-button label="Salvar" icon="pi pi-check" (onClick)="salvar()"/>
+  </ng-template>
+</p-dialog>

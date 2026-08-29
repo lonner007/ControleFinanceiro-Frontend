@@ -38,7 +38,7 @@ export class AuthComponent {
     if (this.formLogin.invalid) { this.formLogin.markAllAsTouched(); return; }
     this.carregando = true;
     this.auth.login(this.formLogin.value).subscribe({
-      next: () => { this.msg.add({ severity: 'success', summary: 'Bem-vindo!', detail: 'Login realizado.' }); this.router.navigate(['/contas']); },
+      next: () => { this.msg.add({ severity: 'success', summary: 'Bem-vindo!', detail: 'Login realizado.' }); this.router.navigate(['/dashboard']); },
       error: (e) => { this.msg.add({ severity: 'error', summary: 'Erro', detail: e?.error?.mensagem?.[0]?.descricao ?? 'E-mail ou senha incorretos.' }); this.carregando = false; },
       complete: () => { this.carregando = false; }
     });
@@ -49,7 +49,7 @@ export class AuthComponent {
     const { dsConfirmar, ...credentials } = this.formRegistro.value;
     this.carregando = true;
     this.auth.registrar(credentials).subscribe({
-      next: () => { this.msg.add({ severity: 'success', summary: 'Conta criada!', detail: 'Bem-vindo ao The Ledger.' }); this.router.navigate(['/contas']); },
+      next: () => { this.msg.add({ severity: 'success', summary: 'Conta criada!', detail: 'Bem-vindo ao The Ledger.' }); this.router.navigate(['/dashboard']); },
       error: (e) => { this.msg.add({ severity: 'error', summary: 'Erro', detail: e?.error?.mensagem?.[0]?.descricao ?? 'Erro ao criar conta.' }); this.carregando = false; },
       complete: () => { this.carregando = false; }
     });

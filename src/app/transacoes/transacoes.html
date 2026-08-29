@@ -126,12 +126,12 @@
   [header]="modoEdicao ? 'Editar Transação' : 'Nova Transação'"
   [(visible)]="dialogVisivel"
   [modal]="true"
-  [style]="{ width: '34rem' }"
+  [style]="{ width: '34rem', maxWidth: 'calc(100vw - 1rem)' }"
   [draggable]="false"
   [resizable]="false"
   (onHide)="fecharDialog()"
 >
-  <form [formGroup]="form" class="form-grid">
+  <form [formGroup]="form" class="form-grid transacoes-form">
 
     <!-- Tipo -->
     <div class="form-field">
@@ -204,7 +204,7 @@
     </div>
 
     <!-- Valor + Data -->
-    <div class="form-row">
+    <div class="form-row transacoes-form-row">
       <div class="form-field">
         <label>Valor <span class="required">*</span></label>
         <p-inputNumber
@@ -226,12 +226,28 @@
           dateFormat="dd/mm/yy"
           placeholder="Selecione a data"
           [showIcon]="true"
+          appendTo="body"
+          styleClass="w-full"
           [ngClass]="{ 'ng-invalid ng-dirty': campoInvalido('dtTransacao') }"
         />
         <small *ngIf="campoInvalido('dtTransacao')" class="field-error">
           Data é obrigatória.
         </small>
       </div>
+    </div>
+
+
+    <!-- Parcelamento (apenas Despesa, modo criação) -->
+    <div class="form-field" *ngIf="tipoSelecionado === 'Despesa' && !modoEdicao">
+      <div style="display:flex;align-items:center;gap:.75rem;padding:.25rem 0;">
+        <p-toggleswitch formControlName="parcelado"></p-toggleswitch>
+        <label style="margin:0;cursor:pointer;font-weight:500;">Parcelar compra</label>
+      </div>
+    </div>
+    <div class="form-field" *ngIf="tipoSelecionado === 'Despesa' && !modoEdicao && isParcelado">
+      <label>Número de Parcelas <span class="required">*</span></label>
+      <p-inputNumber formControlName="nrParcelas" [min]="2" [max]="60" placeholder="Ex: 12"/>
+      <small style="color:var(--color-outline);">Uma transação por mês será criada automaticamente.</small>
     </div>
 
     <!-- Descrição -->

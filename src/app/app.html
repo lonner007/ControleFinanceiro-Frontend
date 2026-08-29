@@ -15,6 +15,9 @@
       </div>
 
       <nav>
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+          <span class="material-symbols-outlined">dashboard</span> Dashboard
+        </a>
         <a routerLink="/contas" routerLinkActive="active" class="nav-item">
           <span class="material-symbols-outlined">account_balance</span> Contas
         </a>
@@ -26,6 +29,12 @@
         </a>
         <a routerLink="/metas" routerLinkActive="active" class="nav-item">
           <span class="material-symbols-outlined">flag</span> Metas
+        </a>
+        <a routerLink="/orcamento" routerLinkActive="active" class="nav-item">
+          <span class="material-symbols-outlined">pie_chart</span> Orçamento
+        </a>
+        <a routerLink="/simulador" routerLinkActive="active" class="nav-item">
+          <span class="material-symbols-outlined">calculate</span> Simulador
         </a>
       </nav>
 
@@ -46,7 +55,6 @@
     <div class="app-main">
       <header class="app-topbar">
         <div></div>
-        <span class="material-symbols-outlined" style="color:var(--color-outline);cursor:pointer;">notifications</span>
       </header>
       <div class="app-content">
         <router-outlet></router-outlet>

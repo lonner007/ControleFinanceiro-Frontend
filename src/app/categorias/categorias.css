@@ -1,0 +1,22 @@
+.categorias-form {
+  width: 100%;
+}
+
+.categorias-inline-fields {
+  flex-wrap: wrap;
+}
+
+.categorias-inline-fields > * {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .categorias-inline-fields {
+    flex-direction: column;
+  }
+
+  :host ::ng-deep .p-dialog {
+    width: calc(100vw - 1rem) !important;
+    margin: 0.5rem !important;
+  }
+}

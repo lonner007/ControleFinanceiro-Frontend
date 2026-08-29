@@ -9,17 +9,13 @@ export interface Transacao {
   vlTransacao: number;
   dtTransacao: string;
   dsTransacao?: string;
-
-  // Campos auxiliares retornados pela API (leitura)
+  parcelado?: boolean;
+  nrParcelas?: number;
+  nrParcelaAtual?: number;
+  cdTransacaoPai?: number;
   nmConta?: string;
   nmContaDestino?: string;
   nmCategoria?: string;
 }
 
-export interface RespostaHttp<T> {
-  statusCode: number;
-  dados?: T;
-  mensagem?: any[];
-}
-
-export type ApiResponse<T> = RespostaHttp<T>;
+export interface RespostaHttp<T> { statusCode: number; dados?: T; mensagem?: any[]; }

@@ -1,0 +1,6 @@
+@media (max-width: 768px) {
+  :host ::ng-deep .p-dialog {
+    width: calc(100vw - 1rem) !important;
+    margin: 0.5rem !important;
+  }
+}
