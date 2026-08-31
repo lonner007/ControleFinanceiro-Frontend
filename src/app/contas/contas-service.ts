@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RespostaHttp, Conta } from './models/contas-models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContaService {
 
-  private apiUrl = 'http://localhost:5261/Api/Contas';
+  private apiUrl = `${environment.apiBaseUrl}/Contas`;
 
   constructor(private http: HttpClient) {}
 

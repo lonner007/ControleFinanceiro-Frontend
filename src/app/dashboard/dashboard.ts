@@ -7,6 +7,7 @@ import { ProgressBar } from 'primeng/progressbar';
 import { TagModule } from 'primeng/tag';
 import { MetaService } from '../metas/metas-service';
 import { Meta } from '../metas/models/metas-models';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,7 +23,7 @@ export class DashboardComponent implements OnInit {
   carregando = true;
   mes = new Date().getMonth() + 1;
   ano = new Date().getFullYear();
-  private api = 'http://localhost:5261/Api';
+  private api = environment.apiBaseUrl;
   graficoGanhosDespesas: any;
   graficoGanhosDespesasOptions: any;
   graficoMetas: any;

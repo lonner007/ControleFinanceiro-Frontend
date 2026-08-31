@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RespostaHttp, Transacao } from './models/transacoes-models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransacaoService {
 
-  private apiUrl = 'http://localhost:5261/Api/Transacoes';
+  private apiUrl = `${environment.apiBaseUrl}/Transacoes`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RespostaHttp, Meta } from './models/metas-models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetaService {
 
-  private apiUrl = 'http://localhost:5261/Api/Metas';
+  private apiUrl = `${environment.apiBaseUrl}/Metas`;
 
   constructor(private http: HttpClient) {}
 

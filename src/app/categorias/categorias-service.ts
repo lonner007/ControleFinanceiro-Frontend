@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RespostaHttp, Categoria } from './models/categorias-models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoriaService {
 
-  private apiUrl = 'http://localhost:5261/Api/Categorias';
+  private apiUrl = `${environment.apiBaseUrl}/Categorias`;
 
   constructor(private http: HttpClient) {}
 

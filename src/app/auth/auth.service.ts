@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { CredenciaisUsuario } from './credenciaisUsuario';
+import { environment } from '../../environments/environment';
 
 const ACCESS_KEY  = 'cf_access';
 const REFRESH_KEY = 'cf_refresh';
@@ -16,7 +17,7 @@ export interface RespostaAuth { statusCode: number; dados?: AuthResponse; mensag
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private api = 'http://localhost:5261/Api/Auth';
+  private api = `${environment.apiBaseUrl}/Auth`;
   usuarioLogado = signal<{cdUsuario:number;nmUsuario:string;dsEmail:string}|null>(this.lerStorage());
 
   constructor(private http: HttpClient, private router: Router) {}
