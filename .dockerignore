@@ -1,6 +1,5 @@
-node_modules
-dist
-.angular/cache
-.git
-.env
-.env.*
+node_modules/
+dist/
+.angular/
+.git/
+*.env

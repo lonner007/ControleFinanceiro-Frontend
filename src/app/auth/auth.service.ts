@@ -6,7 +6,6 @@ import { CredenciaisUsuario } from './credenciaisUsuario';
 import { environment } from '../../environments/environment';
 
 const ACCESS_KEY  = 'cf_access';
-const REFRESH_KEY = 'cf_refresh';
 const USER_KEY    = 'cf_user';
 
 export interface AuthResponse {
@@ -19,51 +18,56 @@ export interface RespostaAuth { statusCode: number; dados?: AuthResponse; mensag
 export class AuthService {
   private api = `${environment.apiBaseUrl}/Auth`;
   usuarioLogado = signal<{cdUsuario:number;nmUsuario:string;dsEmail:string}|null>(this.lerStorage());
+  private accessToken: string | null = this.lerToken();
 
   constructor(private http: HttpClient, private router: Router) {}
 
   registrar(credentials: CredenciaisUsuario) {
-    return this.http.post<RespostaAuth>(`${this.api}/Registrar`, credentials).pipe(
+    return this.http.post<RespostaAuth>(`${this.api}/Registrar`, credentials, { withCredentials: true }).pipe(
       tap(r => { if (r.dados) this.salvar(r.dados); }));
   }
 
   login(credentials: CredenciaisUsuario) {
-    return this.http.post<RespostaAuth>(`${this.api}/Login`, credentials).pipe(
+    return this.http.post<RespostaAuth>(`${this.api}/Login`, credentials, { withCredentials: true }).pipe(
       tap(r => { if (r.dados) this.salvar(r.dados); }));
   }
 
   refresh() {
-    const refreshToken = localStorage.getItem(REFRESH_KEY);
-    const accessToken  = localStorage.getItem(ACCESS_KEY);
-    if (!refreshToken || !accessToken) return null;
-    return this.http.post<RespostaAuth>(`${this.api}/Refresh`, { refreshToken },
-      { headers: { Authorization: `Bearer ${accessToken}` } }).pipe(
+    const accessToken = this.getToken();
+    if (!accessToken) return null;
+    return this.http.post<RespostaAuth>(`${this.api}/Refresh`, {},
+      { headers: { Authorization: `Bearer ${accessToken}` }, withCredentials: true }).pipe(
       tap(r => { if (r.dados) this.salvar(r.dados); }));
   }
 
   logout() {
-    this.http.post(`${this.api}/Logout`, {}).subscribe({ error: () => {} });
+    this.http.post(`${this.api}/Logout`, {}, { withCredentials: true }).subscribe({ error: () => {} });
     this.limpar();
     this.router.navigate(['/login']);
   }
 
-  getToken() { return localStorage.getItem(ACCESS_KEY); }
+  getToken() { return this.accessToken ?? this.lerToken(); }
   isLogado() { return !!this.getToken(); }
 
   private salvar(d: AuthResponse) {
-    localStorage.setItem(ACCESS_KEY, d.accessToken);
-    localStorage.setItem(REFRESH_KEY, d.refreshToken);
+    this.accessToken = d.accessToken;
+    sessionStorage.setItem(ACCESS_KEY, d.accessToken);
     const u = { cdUsuario: d.cdUsuario, nmUsuario: d.nmUsuario, dsEmail: d.dsEmail };
-    localStorage.setItem(USER_KEY, JSON.stringify(u));
+    sessionStorage.setItem(USER_KEY, JSON.stringify(u));
     this.usuarioLogado.set(u);
   }
 
   private limpar() {
-    [ACCESS_KEY, REFRESH_KEY, USER_KEY].forEach(k => localStorage.removeItem(k));
+    this.accessToken = null;
+    [ACCESS_KEY, USER_KEY].forEach(k => sessionStorage.removeItem(k));
     this.usuarioLogado.set(null);
   }
 
+  private lerToken() {
+    return sessionStorage.getItem(ACCESS_KEY);
+  }
+
   private lerStorage() {
-    try { const r = localStorage.getItem(USER_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+    try { const r = sessionStorage.getItem(USER_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
   }
 }

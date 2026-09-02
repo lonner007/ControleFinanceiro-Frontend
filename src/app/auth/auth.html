@@ -24,7 +24,7 @@
       <div class="auth-field">
         <label>Senha</label>
         <p-password formControlName="dsSenha" [feedback]="false" [toggleMask]="true" placeholder="••••••" styleClass="w-full" inputStyleClass="w-full" autocomplete="current-password"/>
-        <small *ngIf="inv(formLogin,'dsSenha')" class="auth-error">Mínimo 6 caracteres.</small>
+        <small *ngIf="inv(formLogin,'dsSenha')" class="auth-error">Mínimo 10 caracteres.</small>
       </div>
       <p-button type="submit" label="Entrar" icon="pi pi-sign-in" styleClass="w-full" [loading]="carregando"/>
     </form>
@@ -44,7 +44,7 @@
         <label>Senha</label>
         <p-password formControlName="dsSenha" [toggleMask]="true" placeholder="••••••" styleClass="w-full" inputStyleClass="w-full"
           promptLabel="Digite uma senha" weakLabel="Fraca" mediumLabel="Média" strongLabel="Forte" autocomplete="new-password"/>
-        <small *ngIf="inv(formRegistro,'dsSenha')" class="auth-error">Mínimo 6 caracteres.</small>
+        <small *ngIf="inv(formRegistro,'dsSenha')" class="auth-error">Mínimo 10 caracteres.</small>
       </div>
       <div class="auth-field">
         <label>Confirmar Senha</label>
