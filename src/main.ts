@@ -25,8 +25,8 @@ function injectScript(id: string, src: string, async = true): void {
 
 function enableGoogleAnalytics(measurementId: string): void {
   window.dataLayer = window.dataLayer ?? [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer?.push(args);
+  window.gtag = function gtag() {
+    window.dataLayer?.push(arguments);
   };
 
   window.gtag('js', new Date());
