@@ -3,11 +3,14 @@ import { appConfig } from './app/app.config';
 import { App } from './app/app';
 import { environment } from './environments/environment';
 
+type HotjarFunction = ((...args: unknown[]) => void) & { q?: unknown[][] };
+
 declare global {
   interface Window {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
-    hj?: (...args: unknown[]) => void;
+    hj?: HotjarFunction;
+    _hjSettings?: { hjid: string; hjsv: number };
   }
 }
 
@@ -35,9 +38,14 @@ function enableGoogleAnalytics(measurementId: string): void {
 }
 
 function enableHotjar(siteId: string, version: number): void {
-  window.hj = window.hj ?? function hj() {
-    return undefined;
-  };
+  window._hjSettings = { hjid: siteId, hjsv: version };
+
+  const hotjar = ((...args: unknown[]) => {
+    hotjar.q = hotjar.q ?? [];
+    hotjar.q.push(args);
+  }) as HotjarFunction;
+
+  window.hj = window.hj ?? hotjar;
 
   injectScript(
     'hotjar-src',
